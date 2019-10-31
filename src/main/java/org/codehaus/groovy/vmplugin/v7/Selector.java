@@ -50,6 +50,7 @@ import org.codehaus.groovy.runtime.metaclass.NewInstanceMetaMethod;
 import org.codehaus.groovy.runtime.metaclass.NewStaticMetaMethod;
 import org.codehaus.groovy.runtime.metaclass.ReflectionMetaMethod;
 import org.codehaus.groovy.runtime.wrappers.Wrapper;
+import org.codehaus.groovy.vmplugin.VMPluginFactory;
 import org.codehaus.groovy.vmplugin.v7.IndyInterface.CALL_TYPES;
 
 import java.lang.invoke.MethodHandle;
@@ -395,9 +396,10 @@ public abstract class Selector {
          * For a constructor call we always use the static meta class from the registry
          */
         @Override
-        public void getMetaClass() {
+        public MetaClass getMetaClass() {
             Object receiver = args[0];
             mc = GroovySystem.getMetaClassRegistry().getMetaClass((Class) receiver);
+            return mc;
         }
 
         /**
@@ -554,7 +556,7 @@ public abstract class Selector {
         /**
          * Gives the meta class to an Object.
          */
-        public void getMetaClass() {
+        public MetaClass getMetaClass() {
             Object receiver = args[0];
             if (receiver == null) {
                 mc = NullObject.getNullObject().getMetaClass();
@@ -573,6 +575,8 @@ public abstract class Selector {
                 this.cache &= !ClassInfo.getClassInfo(receiver.getClass()).hasPerInstanceMetaClasses();
             }
             mc.initialize();
+
+            return mc;
         }
 
         /**
@@ -632,6 +636,7 @@ public abstract class Selector {
             if (metaMethod instanceof CachedMethod) {
                 if (LOG_ENABLED) LOG.info("meta method is CachedMethod instance");
                 CachedMethod cm = (CachedMethod) metaMethod;
+                cm = (CachedMethod) VMPluginFactory.getPlugin().transformMetaMethod(getMetaClass(), cm, cm.getPT(), Selector.class);
                 isVargs = cm.isVargsMethod();
                 try {
                     Method m = cm.getCachedMethod();
