@@ -93,3 +93,12 @@ class TestClass {
         }
     }
 }
+
+enum Orientation {
+    LANDSCAPE, PORTRAIT,
+
+    @Override
+    String toString() {
+        name().toLowerCase().capitalize()
+    }
+}

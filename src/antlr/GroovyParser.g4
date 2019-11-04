@@ -259,7 +259,7 @@ classBody[int t]
     ;
 
 enumConstants
-    :   enumConstant (nls COMMA nls enumConstant)* (nls COMMA)?
+    :   enumConstant (nls COMMA nls enumConstant)*? (nls COMMA)?
     ;
 
 enumConstant
